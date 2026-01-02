@@ -1,0 +1,65 @@
+services:
+  # Next.js Uygulaması (Production Build)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis_db:6379
+      - SOCKET_SERVER_URL=http://socket_server:3001
+    depends_on:
+      redis_db:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "wget", "-q", "--spider", "http://localhost:3000/api/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - ortakzaman_network
+
+  # Socket.io Server
+  socket_server:
+    build:
+      context: ./socket-server
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis_db:6379
+    depends_on:
+      redis_db:
+        condition: service_healthy
+    networks:
+      - ortakzaman_network
+
+  # Redis Veritabanı (JSON Modüllü)
+  redis_db:
+    image: redis/redis-stack-server:latest
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: [ "redis-stack-server", "--appendonly", "yes" ]
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ortakzaman_network
+
+volumes:
+  redis_data:
+
+
+networks:
+  ortakzaman_network:
+    driver: bridge

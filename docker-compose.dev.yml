@@ -1,0 +1,68 @@
+services:
+  # Next.js Uygulaması (Development Mode)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - REDIS_URL=redis://redis_db:6379
+      - SOCKET_SERVER_URL=http://socket_server:3001
+    depends_on:
+      - redis_db
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - ortakzaman_network
+
+  # Socket.io Server
+  socket_server:
+    build:
+      context: ./socket-server
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - REDIS_URL=redis://redis_db:6379
+    depends_on:
+      - redis_db
+    volumes:
+      - ./socket-server:/app
+      - /app/node_modules
+    networks:
+      - ortakzaman_network
+
+  # Redis Stack (JSON modülü dahil)
+  redis_db:
+    image: redis/redis-stack-server:latest
+    container_name: ortakzaman_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ortakzaman_network
+
+  # RedisInsight - Veritabanı Yönetim Arayüzü
+  redis_insight:
+    image: redis/redisinsight:latest
+    container_name: ortakzaman_insight
+    ports:
+      - "8001:5540"
+    depends_on:
+      - redis_db
+    networks:
+      - ortakzaman_network
+
+volumes:
+  redis_data:
+
+
+networks:
+  ortakzaman_network:
+    driver: bridge
