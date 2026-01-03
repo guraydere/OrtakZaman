@@ -104,21 +104,34 @@ Uygulamanın kalbidir. Kullanıcı kimliğini seçtikten sonra buraya düşer.
 
 ---
 
-### Ekran D: Toplantı Sonuç Ekranı (Finalized View)
+### Ekran D: Yönetici Sonuçlandırma Modu (Finalize Flow)
 
-Toplantı yönetici tarafından sonlandırıldığında devreye giren "Salt Okunur" ekrandır. Takvim ve diğer kontroller tamamen gizlenir.
+Herkes seçimini tamamladığında, yönetici "Buluşmayı Sonlandır" butonuna basar ve bu özel mod açılır.
+
+**Görsel ve Etkileşim:**
+
+1.  **Filtrelenmiş Grid:** Sadece "En Uygun" (Kupa) ve "Yüksek Katılım" (Yıldız) alan slotlar, seçilebilir kartlar veya liste halinde gösterilir.
+2.  **Etkileşimli Liste:** Yönetici bu slotlardan birine tıkladığında/üzerine geldiğinde, yan taraftaki katılımcı listesi anlık güncellenir:
+    - O saate uygun olanlar: **Yeşil** renk/ikon ile vurgulanır.
+    - Uygun olmayanlar: **Kırmızı** renk/ikon ile işaretlenir veya silikleşir.
+    - Bu sayede yönetici "Hangi saati seçersem kimleri kaybediyorum?" sorusuna anında görsel cevap alır.
+3.  **Kesinleştir Kaydı:** Yönetici belli bir güne karar verdiğinde "Bu Tarihi Kesinleştir" butonuna basar.
+4.  **Kilitlenme:** Bu işlemden sonra buluşma "Finalized" statüsüne geçer ve tüm seçim ekranları kilitlenir.
+
+---
+
+### Ekran E: Kesinleşmiş Sonuç Ekranı (Finalized Dashboard)
+
+Toplantı kesinleştikten sonra tüm kullanıcıların (Yönetici dahil) gördüğü son haldir.
 
 **Görsel Ögeler:**
 
-- **Başlık ve Açıklama:** Toplantının adı ve notu.
-- **Kesinleşen Zaman:** Seçilen tarih ve saat (Büyük ve vurgulu).
-- **Katılımcı Listeleri:**
-  - ✅ **Gelebilecekler:** O saatte uygun olanlar.
-  - ❌ **Gelemeyecekler:** O saatte uygun olmayanlar.
-
-**Aksiyon:**
-- Ekran statiktir, herhangi bir seçim veya değişiklik yapılamaz.
-- "Yeni Toplantı Oluştur" butonu eklenebilir.
+- **Global Bildirim (Header):** Sayfanın tepesinde veya header içinde "Buluşma Kesinleşti: [Tarih] [Saat]" yazan büyük, dikkat çekici, sabit bir bildirim barı.
+- **Kilitli Arayüz:** Ana takvim grid'i görünmeye devam edebilir (referans için) ancak üzeri "Kilitli" filtresiyle kaplıdır, seçim yapılamaz.
+- **Sonuç Kartı (Hero Section):**
+  - Kesinleşen tarih ve saati büyük puntolarla gösterir.
+  - **Takvime Ekle Aksiyonları:** "Google Takvime Ekle" ve "ICS İndir" butonları.
+  - **Katılım Özeti:** "Gelebilecekler" (Yeşil liste) ve "Gelemeyecekler" (Kırmızı liste) açıkça ayrılmış şekilde listelenir.
 
 ---
 

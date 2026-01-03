@@ -1,7 +1,10 @@
+"use client";
+
 import { Meeting, PublicMeeting } from "@/types/meeting";
 import { formatDayHeaderTR, formatHour } from "@/lib/date-utils";
-import { Check, X, Calendar, Clock, PartyPopper } from "lucide-react";
+import { Check, X, Calendar, Clock, PartyPopper, CalendarPlus, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface MeetingFinalizedViewProps {
     meeting: Meeting | PublicMeeting;
@@ -21,13 +24,67 @@ export function MeetingFinalizedView({ meeting, finalizedSlotId }: MeetingFinali
     const attendees = participants.filter(p => p.slots.includes(finalizedSlotId));
     const absentees = participants.filter(p => !p.slots.includes(finalizedSlotId));
 
+    // Date Helper for Calendar Links
+    const getEventDetails = () => {
+        // dateStr is usually YYYY-MM-DD
+        // Create date object
+        const startDate = new Date(`${dateStr}T${hour.toString().padStart(2, '0')}:00:00`);
+        const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // 1 hour duration
+
+        return { startDate, endDate };
+    };
+
+    const handleGoogleCalendar = () => {
+        const { startDate, endDate } = getEventDetails();
+
+        const formatDate = (date: Date) => date.toISOString().replace(/-|:|\.\d\d\d/g, "");
+
+        const params = new URLSearchParams({
+            action: "TEMPLATE",
+            text: meeting.meta.title,
+            details: meeting.meta.description || "",
+            dates: `${formatDate(startDate)}/${formatDate(endDate)}`,
+        });
+
+        window.open(`https://calendar.google.com/calendar/render?${params.toString()}`, "_blank");
+    };
+
+    const handleDownloadICS = () => {
+        const { startDate, endDate } = getEventDetails();
+        const formatDate = (date: Date) => date.toISOString().replace(/-|:|\.\d\d\d/g, "");
+
+        const icsContent = [
+            "BEGIN:VCALENDAR",
+            "VERSION:2.0",
+            "PRODID:-//OrtakZaman//Meeting//TR",
+            "BEGIN:VEVENT",
+            `UID:${meeting.id}-${finalizedSlotId}@ortakzaman.com`,
+            `DTSTAMP:${formatDate(new Date())}`,
+            `DTSTART:${formatDate(startDate)}`,
+            `DTEND:${formatDate(endDate)}`,
+            `SUMMARY:${meeting.meta.title}`,
+            `DESCRIPTION:${meeting.meta.description || ""}`,
+            "END:VEVENT",
+            "END:VCALENDAR"
+        ].join("\r\n");
+
+        const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `${meeting.meta.title.replace(/\s+/g, "_")}.ics`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     return (
-        <div className="flex-1 flex flex-col items-center justify-center p-4 animate-in fade-in duration-500">
+        <div className="flex-1 flex flex-col items-center justify-center p-4 animate-in fade-in duration-500 pb-20">
             <div className="w-full max-w-3xl space-y-8">
 
                 {/* Header Section */}
                 <div className="text-center space-y-4">
-                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 mb-4 shadow-lg ring-8 ring-emerald-50 dark:ring-emerald-950/50">
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 mb-4 shadow-lg ring-8 ring-emerald-50 dark:ring-emerald-950/50 animate-bounce-slow">
                         <PartyPopper className="w-10 h-10" />
                     </div>
 
@@ -45,11 +102,12 @@ export function MeetingFinalizedView({ meeting, finalizedSlotId }: MeetingFinali
                 {/* Main Result Card */}
                 <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-border/50 overflow-hidden">
                     {/* Date/Time Banner */}
-                    <div className="bg-gradient-to-br from-indigo-500 to-violet-600 p-8 sm:p-10 text-white text-center">
-                        <div className="uppercase tracking-widest text-xs font-bold text-indigo-100 mb-4">
+                    <div className="bg-gradient-to-br from-indigo-500 to-violet-600 p-8 sm:p-10 text-white text-center relative overflow-hidden">
+                        <div className="absolute inset-0 bg-[url('/bg-pattern.svg')] opacity-10"></div>
+                        <div className="uppercase tracking-widest text-xs font-bold text-indigo-100 mb-4 relative z-10">
                             Kesinleşen Tarih
                         </div>
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12">
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 relative z-10">
                             <div className="flex items-center gap-4">
                                 <Calendar className="w-8 h-8 text-indigo-200" />
                                 <span className="text-3xl sm:text-4xl font-bold">{day}, {date}</span>
@@ -59,6 +117,26 @@ export function MeetingFinalizedView({ meeting, finalizedSlotId }: MeetingFinali
                                 <Clock className="w-8 h-8 text-indigo-200" />
                                 <span className="text-4xl sm:text-5xl font-black tracking-widest">{formatHour(hour)}</span>
                             </div>
+                        </div>
+
+                        {/* Add to Calendar Actions */}
+                        <div className="mt-8 flex flex-wrap items-center justify-center gap-3 relative z-10">
+                            <Button
+                                variant="secondary"
+                                className="bg-white/10 hover:bg-white/20 text-white border-white/10"
+                                onClick={handleGoogleCalendar}
+                            >
+                                <CalendarPlus className="w-4 h-4 mr-2" />
+                                Google Takvim
+                            </Button>
+                            <Button
+                                variant="secondary"
+                                className="bg-white/10 hover:bg-white/20 text-white border-white/10"
+                                onClick={handleDownloadICS}
+                            >
+                                <Download className="w-4 h-4 mr-2" />
+                                .ICS İndir (Outlook/Apple)
+                            </Button>
                         </div>
                     </div>
 

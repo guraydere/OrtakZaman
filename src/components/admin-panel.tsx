@@ -130,20 +130,26 @@ export function AdminPanel({ meeting, meetingId, adminToken, onUpdate, onFinaliz
                     </Button>
                 </div>
 
-                {/* Finalize Meeting */}
+                {/* Finalize Meeting - IMPROVED VISIBILITY (Not aggressive) */}
                 {meeting.meta.status !== "finalized" && (
-                    <Button
-                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
-                        onClick={onFinalize}
-                    >
-                        <CheckCircle className="w-4 h-4 mr-2" />
-                        Buluşmayı Sonlandır
-                    </Button>
+                    <div className="pt-2 border-t">
+                        <Button
+                            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-md hover:shadow-lg transform active:scale-[0.98] transition-all font-semibold"
+                            size="default"
+                            onClick={onFinalize}
+                        >
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                            Buluşmayı Kesinleştir
+                        </Button>
+                        <p className="text-[10px] text-muted-foreground text-center mt-1">
+                            En uygun zamanı seçerek toplantıyı kilitle
+                        </p>
+                    </div>
                 )}
 
                 {/* Guest Requests */}
                 {guestRequests.length > 0 && (
-                    <div className="space-y-2">
+                    <div className="space-y-2 border-t pt-2">
                         <p className="font-medium text-sm">Bekleyen İstekler</p>
                         {guestRequests.map((request) => (
                             <div
@@ -185,7 +191,7 @@ export function AdminPanel({ meeting, meetingId, adminToken, onUpdate, onFinaliz
                 )}
 
                 {/* Participant Management */}
-                <div className="space-y-2">
+                <div className="space-y-2 border-t pt-2">
                     <p className="font-medium text-sm">Katılımcılar</p>
                     <div className="max-h-48 overflow-y-auto space-y-1">
                         {participants.map(([id, participant]) => (
