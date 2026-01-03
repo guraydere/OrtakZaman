@@ -233,6 +233,7 @@ export function CreateMeetingForm() {
                                 disabled={{ before: new Date() }}
                                 fromDate={new Date()}
                                 toDate={addDays(new Date(), 30)}
+                                locale={tr}
                                 className="rounded-lg border-0 scale-[0.95] sm:scale-100"
                             />
                         </div>

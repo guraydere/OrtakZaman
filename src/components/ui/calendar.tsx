@@ -199,7 +199,7 @@ function CalendarDayButton({
       ref={ref}
       variant="ghost"
       size="icon"
-      data-day={day.date.toLocaleDateString()}
+      data-day={day.date.toLocaleDateString("tr-TR")}
       data-selected-single={
         modifiers.selected &&
         !modifiers.range_start &&
