@@ -63,7 +63,7 @@ export default function MeetingPage() {
                 }
             }
         } catch (err) {
-            setError("Toplantı yüklenemedi");
+            setError("Buluşma yüklenemedi");
             console.error(err);
         } finally {
             setIsLoading(false);

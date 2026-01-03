@@ -237,7 +237,7 @@ export async function updateAvailability(
     if (statusResult) {
         const [status] = JSON.parse(statusResult as string) as string[];
         if (status === "frozen") {
-            return { success: false, error: "Toplantı kilitlenmiş" };
+            return { success: false, error: "Buluşma kilitlenmiş" };
         }
     }
 
@@ -462,7 +462,7 @@ export async function finalizeMeeting(
     // Verify meeting exists
     const exists = await redis.exists(key);
     if (!exists) {
-        return { success: false, error: "Toplantı bulunamadı" };
+        return { success: false, error: "Buluşma bulunamadı" };
     }
 
     // Update status and finalizedSlotId atomically

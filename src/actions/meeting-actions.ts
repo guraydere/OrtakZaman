@@ -78,7 +78,7 @@ export async function createMeetingAction(
         };
     } catch (error) {
         console.error("createMeetingAction error:", error);
-        return { success: false, error: "Toplantı oluşturulamadı" };
+        return { success: false, error: "Buluşma oluşturulamadı" };
     }
 }
 
@@ -91,12 +91,12 @@ export async function getMeetingAction(
     try {
         const meeting = await getPublicMeeting(meetingId);
         if (!meeting) {
-            return { success: false, error: "Toplantı bulunamadı" };
+            return { success: false, error: "Buluşma bulunamadı" };
         }
         return { success: true, data: meeting };
     } catch (error) {
         console.error("getMeetingAction error:", error);
-        return { success: false, error: "Toplantı yüklenemedi" };
+        return { success: false, error: "Buluşma yüklenemedi" };
     }
 }
 
@@ -203,10 +203,10 @@ export async function requestGuestAccessAction(
         // Check if meeting allows guests
         const meeting = await getPublicMeeting(meetingId);
         if (!meeting) {
-            return { success: false, error: "Toplantı bulunamadı" };
+            return { success: false, error: "Buluşma bulunamadı" };
         }
         if (!meeting.meta.allowGuest) {
-            return { success: false, error: "Bu toplantıya misafir eklenemez" };
+            return { success: false, error: "Bu buluşmaya misafir eklenemez" };
         }
 
         await addGuestRequest(meetingId, {

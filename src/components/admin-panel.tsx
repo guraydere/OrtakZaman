@@ -103,7 +103,7 @@ export function AdminPanel({ meeting, meetingId, adminToken, onUpdate, onFinaliz
                 {/* Freeze Toggle */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <p className="font-medium text-sm">Toplantı Durumu</p>
+                        <p className="font-medium text-sm">Buluşma Durumu</p>
                         <p className="text-xs text-muted-foreground">
                             {isFrozen ? "Seçim yapılamıyor" : "Seçim açık"}
                         </p>
@@ -137,7 +137,7 @@ export function AdminPanel({ meeting, meetingId, adminToken, onUpdate, onFinaliz
                         onClick={onFinalize}
                     >
                         <CheckCircle className="w-4 h-4 mr-2" />
-                        Toplantıyı Sonlandır
+                        Buluşmayı Sonlandır
                     </Button>
                 )}
 

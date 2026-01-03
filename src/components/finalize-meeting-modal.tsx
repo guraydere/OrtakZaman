@@ -100,9 +100,9 @@ export function FinalizeMeetingModal({
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Toplantıyı Sonlandır</DialogTitle>
+                    <DialogTitle>Buluşmayı Sonlandır</DialogTitle>
                     <DialogDescription>
-                        En uygun zamanı seçerek toplantıyı kesinleştirin. Bu işlem geri alınamaz.
+                        En uygun zamanı seçerek buluşmayı kesinleştirin. Bu işlem geri alınamaz.
                     </DialogDescription>
                 </DialogHeader>
 

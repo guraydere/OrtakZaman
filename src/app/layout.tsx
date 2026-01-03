@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "OrtakZaman - Ortak Müsait Zamanı Bul",
   description:
     "Grup buluşmaları için ortak müsait zamanı hızlıca belirleyin. Kayıt gerektirmez, link paylaşın, herkes zamanını işaretlesin.",
-  keywords: ["toplantı planlama", "müsaitlik", "takvim", "grup buluşma", "zaman bulma"],
+  keywords: ["buluşma planlama", "müsaitlik", "takvim", "grup buluşma", "zaman bulma"],
   openGraph: {
     title: "OrtakZaman - Ortak Müsait Zamanı Bul",
     description: "Link paylaş, isim seç, zamanı işaretle. Kayıt gerektirmez!",

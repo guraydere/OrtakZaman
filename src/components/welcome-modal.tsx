@@ -67,7 +67,7 @@ export function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
                     </div>
 
                     <h2 style={{ fontSize: "20px", fontWeight: "900", marginBottom: "8px" }}>
-                        Toplantı planlamak hiç bu kadar <span style={{ color: "#fde68a" }}>kolay</span> olmamıştı.
+                        Buluşma planlamak hiç bu kadar <span style={{ color: "#fde68a" }}>kolay</span> olmamıştı.
                     </h2>
                     <p style={{ fontSize: "14px", color: "rgba(199,210,254,1)" }}>
                         Tek link ile herkesin müsait zamanını bulun.
