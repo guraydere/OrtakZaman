@@ -3,7 +3,7 @@
 import { useEffect, useCallback, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getMeetingAction, updateAvailabilityAction, validateSessionAction } from "@/actions";
-import { useMeeting, useCurrentUser, useSlotSelection, meetingIdAtom } from "@/store";
+import { useMeeting, useCurrentUser, meetingIdAtom } from "@/store";
 import { useSocket } from "@/hooks";
 import { useSetAtom } from "jotai";
 import {
@@ -17,7 +17,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, Calendar, Lock, AlertCircle, Sparkles, Users, Clock, Share2, ChevronDown, ChevronUp } from "lucide-react";
-import type { SocketMessage, PublicMeeting } from "@/types";
+import type { SocketMessage } from "@/types";
 
 export default function MeetingPage() {
     const params = useParams();
@@ -26,18 +26,19 @@ export default function MeetingPage() {
 
     const setMeetingIdAtom = useSetAtom(meetingIdAtom);
     const { meeting, setMeeting, isLoading, setIsLoading, error, setError, isFrozen } = useMeeting();
-    const { currentUser, isAdmin, adminToken, saveDeviceToken } = useCurrentUser();
-    const { selectedSlots, initializeSlots } = useSlotSelection();
+    const { currentUser, isAdmin, adminToken } = useCurrentUser();
 
     const [showIdentityModal, setShowIdentityModal] = useState(false);
     const [showParticipants, setShowParticipants] = useState(false);
+    const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
     const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const isInitializedRef = useRef(false);
 
     useEffect(() => {
         setMeetingIdAtom(meetingId);
     }, [meetingId, setMeetingIdAtom]);
 
-    const fetchMeeting = useCallback(async () => {
+    const fetchMeeting = useCallback(async (skipSlotInit = false) => {
         setIsLoading(true);
         setError(null);
 
@@ -48,24 +49,35 @@ export default function MeetingPage() {
                 return;
             }
             setMeeting(result.data);
+
+            // Initialize slots from server data only once or when explicitly requested
+            if (!skipSlotInit && currentUser && result.data.participants[currentUser.participantId]) {
+                const serverSlots = result.data.participants[currentUser.participantId].slots;
+                if (!isInitializedRef.current) {
+                    setSelectedSlots(serverSlots);
+                    isInitializedRef.current = true;
+                }
+            }
         } catch (err) {
             setError("Toplantı yüklenemedi");
             console.error(err);
         } finally {
             setIsLoading(false);
         }
-    }, [meetingId, setMeeting, setIsLoading, setError]);
+    }, [meetingId, setMeeting, setIsLoading, setError, currentUser]);
 
+    // Initial load
     useEffect(() => {
         fetchMeeting();
     }, [fetchMeeting]);
 
+    // Session check
     useEffect(() => {
         const checkSession = async () => {
-            if (!meeting || !currentUser) {
-                if (meeting) {
-                    setShowIdentityModal(true);
-                }
+            if (!meeting) return;
+
+            if (!currentUser) {
+                setShowIdentityModal(true);
                 return;
             }
 
@@ -77,8 +89,9 @@ export default function MeetingPage() {
 
             if (isValid) {
                 const participant = meeting.participants[currentUser.participantId];
-                if (participant) {
-                    initializeSlots(participant.slots);
+                if (participant && !isInitializedRef.current) {
+                    setSelectedSlots(participant.slots);
+                    isInitializedRef.current = true;
                 }
                 setShowIdentityModal(false);
             } else {
@@ -87,40 +100,52 @@ export default function MeetingPage() {
         };
 
         checkSession();
-    }, [meeting, currentUser, meetingId, initializeSlots]);
+    }, [meeting, currentUser, meetingId]);
 
+    // Socket message handler - refresh data but don't reset local selection
     const handleSocketMessage = useCallback(
         (message: SocketMessage) => {
             console.log("Socket message:", message);
-            fetchMeeting();
+            // Fetch meeting data but skip reinitializing slots
+            fetchMeeting(true);
         },
         [fetchMeeting]
     );
 
     useSocket(meetingId, handleSocketMessage);
 
-    const handleSlotUpdate = useCallback(
+    // Handle slot changes with debounced server update
+    const handleSlotsChange = useCallback(
         (newSlots: string[]) => {
-            if (!currentUser) return;
+            // Update local state immediately (optimistic UI)
+            setSelectedSlots(newSlots);
 
+            // Debounce server update
             if (updateTimeoutRef.current) {
                 clearTimeout(updateTimeoutRef.current);
             }
 
             updateTimeoutRef.current = setTimeout(async () => {
-                await updateAvailabilityAction(
+                if (!currentUser) return;
+
+                const result = await updateAvailabilityAction(
                     meetingId,
                     currentUser.participantId,
                     currentUser.deviceToken,
                     newSlots
                 );
-            }, 500);
+
+                if (!result.success) {
+                    console.error("Failed to update slots:", result.error);
+                }
+            }, 300);
         },
         [meetingId, currentUser]
     );
 
     const handleIdentityClaimed = useCallback(() => {
         setShowIdentityModal(false);
+        isInitializedRef.current = false; // Allow re-initialization after identity change
         fetchMeeting();
     }, [fetchMeeting]);
 
@@ -164,7 +189,7 @@ export default function MeetingPage() {
 
     return (
         <div className="min-h-screen bg-background">
-            {/* Decorative - Hidden on mobile */}
+            {/* Decorative */}
             <div className="hidden sm:block fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-primary/5 blur-3xl" />
                 <div className="absolute bottom-0 -left-40 w-96 h-96 rounded-full bg-accent/5 blur-3xl" />
@@ -178,7 +203,7 @@ export default function MeetingPage() {
                 />
             )}
 
-            {/* Header - Compact for mobile */}
+            {/* Header */}
             <header className="relative border-b bg-card/80 backdrop-blur-md sticky top-0 z-40">
                 <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
                     <div className="flex items-center justify-between gap-2">
@@ -201,7 +226,6 @@ export default function MeetingPage() {
                             </div>
                         </div>
 
-                        {/* Share buttons - Icon only on mobile */}
                         <div className="flex items-center gap-1 sm:gap-2">
                             <ShareButton meetingId={meetingId} />
                             <div className="hidden sm:block">
@@ -212,25 +236,25 @@ export default function MeetingPage() {
                 </div>
             </header>
 
-            {/* Current User Banner - Mobile prominent */}
+            {/* Current User Banner */}
             {currentUser && currentParticipant && (
-                <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border-b border-green-200 dark:border-green-800">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-b border-blue-200 dark:border-blue-800">
                     <div className="container mx-auto px-3 sm:px-4 py-2 sm:py-3">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 rounded-lg bg-green-500 flex items-center justify-center">
+                                <div className="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center">
                                     <Sparkles className="w-4 h-4 text-white" />
                                 </div>
                                 <div>
-                                    <p className="font-semibold text-sm text-green-800 dark:text-green-200">
+                                    <p className="font-semibold text-sm text-blue-800 dark:text-blue-200">
                                         {currentParticipant.name}
                                     </p>
-                                    <p className="text-[10px] sm:text-xs text-green-600 dark:text-green-400">
+                                    <p className="text-[10px] sm:text-xs text-blue-600 dark:text-blue-400">
                                         {selectedSlots.length > 0 ? `${selectedSlots.length} saat seçtin` : "Müsait saatlerini işaretle"}
                                     </p>
                                 </div>
                             </div>
-                            <div className="text-right text-xs text-green-600 dark:text-green-400">
+                            <div className="text-right text-xs text-blue-600 dark:text-blue-400">
                                 <span className="font-medium">{claimedCount}/{participantCount}</span> katıldı
                             </div>
                         </div>
@@ -252,7 +276,7 @@ export default function MeetingPage() {
                                     <CardTitle className="text-sm sm:text-base">Müsaitlik Takvimi</CardTitle>
                                     <CardDescription className="text-xs sm:text-sm truncate">
                                         {currentUser
-                                            ? "Müsait saatlerine dokun"
+                                            ? "Müsait saatlerine tıkla, tekrar tıkla kaldır"
                                             : "Önce ismini seç"}
                                     </CardDescription>
                                 </div>
@@ -262,12 +286,13 @@ export default function MeetingPage() {
                             <CalendarGrid
                                 meeting={meeting}
                                 currentUserId={currentUser?.participantId || null}
-                                onSlotUpdate={handleSlotUpdate}
+                                selectedSlots={selectedSlots}
+                                onSlotsChange={handleSlotsChange}
                             />
                         </CardContent>
                     </Card>
 
-                    {/* Participants - Collapsible on mobile */}
+                    {/* Sidebar */}
                     <div className="order-2 lg:order-2 space-y-4">
                         {/* Mobile: Collapsible participants */}
                         <div className="lg:hidden">
@@ -325,7 +350,7 @@ export default function MeetingPage() {
                                 meeting={meeting}
                                 meetingId={meetingId}
                                 adminToken={adminToken}
-                                onUpdate={fetchMeeting}
+                                onUpdate={() => fetchMeeting(true)}
                             />
                         )}
                     </div>
