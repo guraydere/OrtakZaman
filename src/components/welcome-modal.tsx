@@ -51,19 +51,34 @@ export function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
                     color: "white",
                     background: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #c026d3 100%)",
                 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+                    {/* Brand */}
+                    <div style={{ marginBottom: "16px" }}>
                         <div style={{
-                            width: "32px",
-                            height: "32px",
-                            borderRadius: "8px",
-                            backgroundColor: "rgba(255,255,255,0.2)",
-                            display: "flex",
+                            display: "inline-flex",
                             alignItems: "center",
-                            justifyContent: "center",
+                            gap: "10px",
+                            padding: "8px 16px",
+                            backgroundColor: "rgba(255,255,255,0.15)",
+                            borderRadius: "12px",
                         }}>
-                            <Calendar style={{ width: "16px", height: "16px" }} />
+                            <div style={{
+                                width: "36px",
+                                height: "36px",
+                                borderRadius: "10px",
+                                background: "linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                boxShadow: "0 4px 12px rgba(251,191,36,0.4)",
+                            }}>
+                                <Calendar style={{ width: "20px", height: "20px", color: "white" }} />
+                            </div>
+                            <span style={{
+                                fontSize: "22px",
+                                fontWeight: "800",
+                                letterSpacing: "-0.5px",
+                            }}>Ortak Zaman</span>
                         </div>
-                        <span style={{ fontSize: "18px", fontWeight: "700" }}>OrtakZaman</span>
                     </div>
 
                     <h2 style={{ fontSize: "20px", fontWeight: "900", marginBottom: "8px" }}>

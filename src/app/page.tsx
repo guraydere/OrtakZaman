@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { CreateMeetingForm } from "@/components/create-meeting-form";
 import { WelcomeModal } from "@/components/welcome-modal";
-import { Calendar, HelpCircle } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
@@ -28,11 +28,13 @@ export default function Home() {
 
       {/* Header */}
       <header className="relative container mx-auto px-4 py-4 sm:py-6 flex items-center justify-between z-10">
-        <div className="flex items-center gap-2 sm:gap-3">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
-            <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-          </div>
-          <span className="text-xl sm:text-2xl font-bold text-gradient">OrtakZaman</span>
+        <div className="flex items-center">
+          <img
+            src="/ortakzaman_title.webp"
+            alt="Ortak Zaman"
+            className="h-8 sm:h-10 w-auto"
+            style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.1))" }}
+          />
         </div>
 
         <Button
