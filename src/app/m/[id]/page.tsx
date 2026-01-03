@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 import { formatDayHeaderTR, formatHour } from "@/lib/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, Calendar, Lock, AlertCircle, Sparkles, Users, Clock, Share2, ChevronDown, ChevronUp, CheckCircle } from "lucide-react";
+import { Calendar, Lock, AlertCircle, Sparkles, Users, Share2, ChevronDown, ChevronUp, CheckCircle } from "lucide-react";
 import type { SocketMessage } from "@/types";
 
 export default function MeetingPage() {
@@ -55,7 +55,6 @@ export default function MeetingPage() {
             }
             setMeeting(result.data);
 
-            // Initialize slots from server data only once or when explicitly requested
             if (!skipSlotInit && currentUser && result.data.participants[currentUser.participantId]) {
                 const serverSlots = result.data.participants[currentUser.participantId].slots;
                 if (!isInitializedRef.current) {
@@ -71,21 +70,17 @@ export default function MeetingPage() {
         }
     }, [meetingId, setMeeting, setIsLoading, setError, currentUser]);
 
-    // Initial load
     useEffect(() => {
         fetchMeeting();
     }, [fetchMeeting]);
 
-    // Session check
     useEffect(() => {
         const checkSession = async () => {
             if (!meeting) return;
-
             if (!currentUser) {
                 setShowIdentityModal(true);
                 return;
             }
-
             const isValid = await validateSessionAction(
                 meetingId,
                 currentUser.participantId,
@@ -93,11 +88,6 @@ export default function MeetingPage() {
             );
 
             if (isValid) {
-                const participant = meeting.participants[currentUser.participantId];
-                if (participant && !isInitializedRef.current) {
-                    setSelectedSlots(participant.slots);
-                    isInitializedRef.current = true;
-                }
                 setShowIdentityModal(false);
             } else {
                 setShowIdentityModal(true);
@@ -107,11 +97,8 @@ export default function MeetingPage() {
         checkSession();
     }, [meeting, currentUser, meetingId]);
 
-    // Socket message handler - refresh data but don't reset local selection
     const handleSocketMessage = useCallback(
         (message: SocketMessage) => {
-            console.log("Socket message:", message);
-            // Fetch meeting data but skip reinitializing slots
             fetchMeeting(true);
         },
         [fetchMeeting]
@@ -119,30 +106,22 @@ export default function MeetingPage() {
 
     useSocket(meetingId, handleSocketMessage);
 
-    // Handle slot changes with debounced server update
     const handleSlotsChange = useCallback(
         (newSlots: string[]) => {
-            // Update local state immediately (optimistic UI)
             setSelectedSlots(newSlots);
 
-            // Debounce server update
             if (updateTimeoutRef.current) {
                 clearTimeout(updateTimeoutRef.current);
             }
 
             updateTimeoutRef.current = setTimeout(async () => {
                 if (!currentUser) return;
-
-                const result = await updateAvailabilityAction(
+                await updateAvailabilityAction(
                     meetingId,
                     currentUser.participantId,
                     currentUser.deviceToken,
                     newSlots
                 );
-
-                if (!result.success) {
-                    console.error("Failed to update slots:", result.error);
-                }
             }, 300);
         },
         [meetingId, currentUser]
@@ -150,19 +129,14 @@ export default function MeetingPage() {
 
     const handleIdentityClaimed = useCallback(() => {
         setShowIdentityModal(false);
-        isInitializedRef.current = false; // Allow re-initialization after identity change
+        isInitializedRef.current = false;
         fetchMeeting();
     }, [fetchMeeting]);
 
     if (isLoading && !meeting) {
         return (
             <div className="min-h-screen gradient-hero flex items-center justify-center p-4">
-                <div className="text-center space-y-4">
-                    <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl gradient-primary shadow-glow animate-pulse">
-                        <Calendar className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
-                    </div>
-                    <p className="text-sm text-muted-foreground">Yükleniyor...</p>
-                </div>
+                <Loader2 className="w-8 h-8 text-white animate-spin" />
             </div>
         );
     }
@@ -172,9 +146,7 @@ export default function MeetingPage() {
             <div className="min-h-screen gradient-hero flex items-center justify-center p-4">
                 <Card className="max-w-md w-full glass">
                     <CardContent className="pt-6 text-center">
-                        <div className="w-14 h-14 mx-auto rounded-2xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
-                            <AlertCircle className="w-7 h-7 text-red-500" />
-                        </div>
+                        <AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-4" />
                         <h2 className="font-semibold text-lg">Bir sorun oluştu</h2>
                         <p className="text-muted-foreground mt-1 text-sm">{error}</p>
                         <Button onClick={() => router.push("/")} className="mt-4">
@@ -193,7 +165,6 @@ export default function MeetingPage() {
     const currentParticipant = currentUser ? meeting.participants[currentUser.participantId] : null;
     const isFinalized = meeting.meta.status === "finalized";
 
-    // Calculate finalized info
     let finalizedInfo = null;
     if (isFinalized && meeting.meta.finalizedSlotId) {
         const parts = meeting.meta.finalizedSlotId.split("_");
@@ -210,7 +181,7 @@ export default function MeetingPage() {
 
     return (
         <div className="min-h-screen bg-background">
-            {/* Decorative */}
+            {/* Background Effects */}
             <div className="hidden sm:block fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-primary/5 blur-3xl" />
                 <div className="absolute bottom-0 -left-40 w-96 h-96 rounded-full bg-accent/5 blur-3xl" />
@@ -224,57 +195,59 @@ export default function MeetingPage() {
                 />
             )}
 
-            {/* Finalized Banner */}
-            {isFinalized && finalizedInfo && (
-                <div className="sticky top-0 z-50 bg-emerald-600 text-white px-4 py-2 shadow-md text-center text-sm font-medium animate-in slide-in-from-top flex items-center justify-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-emerald-100" />
-                    <span>
-                        Buluşma Kesinleşti: {finalizedInfo.dateHeader.day}, {finalizedInfo.dateHeader.date} • {finalizedInfo.hourStr}
-                    </span>
-                </div>
-            )}
+            {/* Combined Header + Banner (Sticky Wrapper) */}
+            <div className="sticky top-0 z-50 flex flex-col shadow-sm">
 
-            {/* Header */}
-            <header className={cn(
-                "relative border-b bg-card/80 backdrop-blur-md z-40 transition-all",
-                isFinalized ? "top-0 md:top-0" : "sticky top-0" // If finalized, it scrolls normally under banner OR sticks below it. 
-                // Currently keeping it simple: regular sticky unless finalized logic changes.
-                // Let's stick it below banner if finalized:
-            )}
-                style={isFinalized ? { position: 'sticky', top: '36px' } : {}}
-            >
-                <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
-                    <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                            <a href="/" className="flex-shrink-0">
-                                <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
-                                    <Calendar className="w-4 h-4 text-white" />
+                {/* Finalized Banner */}
+                {isFinalized && finalizedInfo && (
+                    <div className="bg-emerald-600 text-white px-4 py-2 text-center text-sm font-medium flex items-center justify-center gap-2 animate-in slide-in-from-top">
+                        <CheckCircle className="w-4 h-4 text-emerald-100" />
+                        <span>
+                            Buluşma Kesinleşti: {finalizedInfo.dateHeader.day}, {finalizedInfo.dateHeader.date} • {finalizedInfo.hourStr}
+                        </span>
+                    </div>
+                )}
+
+                {/* Navbar */}
+                <header className="bg-background border-b relative z-40 transition-all">
+                    <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
+                        <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                                <a href="/" className="flex-shrink-0">
+                                    <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
+                                        <Calendar className="w-4 h-4 text-white" />
+                                    </div>
+                                </a>
+                                <div className="min-w-0 flex-1">
+                                    <h1 className="font-semibold text-sm sm:text-base truncate">
+                                        {meeting.meta.title}
+                                    </h1>
+                                    {(isFrozen || isFinalized) && (
+                                        <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs text-amber-600 font-medium">
+                                            <Lock className="w-2.5 h-2.5" />
+                                            {isFinalized ? "Kesinleşti" : "Kilitli"}
+                                        </span>
+                                    )}
                                 </div>
-                            </a>
-                            <div className="min-w-0 flex-1">
-                                <h1 className="font-semibold text-sm sm:text-base truncate">
-                                    {meeting.meta.title}
-                                </h1>
-                                {(isFrozen || isFinalized) && (
-                                    <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs text-amber-600 font-medium">
-                                        <Lock className="w-2.5 h-2.5" />
-                                        {isFinalized ? "Kesinleşti" : "Kilitli"}
-                                    </span>
-                                )}
                             </div>
-                        </div>
 
-                        <div className="flex items-center gap-1 sm:gap-2">
-                            {!isFinalized && <ShareButton meetingId={meetingId} />}
-                            <div className="hidden sm:block">
-                                <SummaryExport meeting={meeting} meetingId={meetingId} />
+                            <div className="flex items-center gap-1 sm:gap-2">
+                                {!isFinalized && <ShareButton meetingId={meetingId} />}
+                                <div className="hidden sm:block">
+                                    <SummaryExport meeting={meeting} meetingId={meetingId} />
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </header>
+                </header>
 
-            {/* Current User Banner */}
+                {/* Current User Info (Still part of sticky if we want, or make it scroll? 
+                   User usually wants this accessible. Let's keep it separate for now or it takes too much space.
+                   Keeping it OUT of sticky wrapper for now to verify banner fix first.
+                ) */}
+            </div>
+
+            {/* Current User Banner (Scrolls with page) */}
             {currentUser && currentParticipant && !isFinalized && (
                 <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-b border-blue-200 dark:border-blue-800">
                     <div className="container mx-auto px-3 sm:px-4 py-2 sm:py-3">
@@ -305,7 +278,7 @@ export default function MeetingPage() {
 
                 {/* Finalized View (Top) */}
                 {isFinalized && meeting.meta.finalizedSlotId && (
-                    <div className="mb-8 relative z-30">
+                    <div className="mb-8 relative z-30 animate-in fade-in duration-500">
                         <MeetingFinalizedView meeting={meeting} finalizedSlotId={meeting.meta.finalizedSlotId} />
                     </div>
                 )}
