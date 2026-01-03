@@ -119,11 +119,12 @@ export function useCurrentUser() {
         }));
     };
 
-    const saveAdminToken = (token: string) => {
-        if (!meetingId) return;
+    const saveAdminToken = (token: string, explicitMeetingId?: string) => {
+        const targetId = explicitMeetingId || meetingId;
+        if (!targetId) return;
         setAdminTokens((prev) => ({
             ...prev,
-            [meetingId]: token,
+            [targetId]: token,
         }));
     };
 

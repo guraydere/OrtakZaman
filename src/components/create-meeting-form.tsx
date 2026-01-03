@@ -84,7 +84,7 @@ export function CreateMeetingForm() {
                 return;
             }
 
-            saveAdminToken(result.data.adminToken);
+            saveAdminToken(result.data.adminToken, result.data.meetingId);
             router.push(`/m/${result.data.meetingId}`);
         } catch (err) {
             setError("Bir hata oluştu. Lütfen tekrar deneyin.");
