@@ -13,7 +13,10 @@ import {
     AdminPanel,
     ShareButton,
     SummaryExport,
+    MeetingFinalizedView,
+    FinalizeMeetingModal,
 } from "@/components";
+import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, Calendar, Lock, AlertCircle, Sparkles, Users, Clock, Share2, ChevronDown, ChevronUp } from "lucide-react";
@@ -29,6 +32,7 @@ export default function MeetingPage() {
     const { currentUser, isAdmin, adminToken } = useCurrentUser();
 
     const [showIdentityModal, setShowIdentityModal] = useState(false);
+    const [showFinalizeModal, setShowFinalizeModal] = useState(false);
     const [showParticipants, setShowParticipants] = useState(false);
     const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
     const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -186,6 +190,7 @@ export default function MeetingPage() {
     const participantCount = Object.keys(meeting.participants).length;
     const claimedCount = Object.values(meeting.participants).filter(p => p.isClaimed).length;
     const currentParticipant = currentUser ? meeting.participants[currentUser.participantId] : null;
+    const isFinalized = meeting.meta.status === "finalized";
 
     return (
         <div className="min-h-screen bg-background">
@@ -266,31 +271,37 @@ export default function MeetingPage() {
             <main className="relative container mx-auto px-3 sm:px-4 py-4 sm:py-6">
                 <div className="flex flex-col lg:grid lg:grid-cols-[1fr_320px] gap-4 sm:gap-6">
                     {/* Calendar Grid */}
-                    <Card className="glass overflow-hidden order-1">
-                        <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-accent/5 p-3 sm:p-4">
-                            <div className="flex items-center gap-2 sm:gap-3">
-                                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
-                                    <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                    <div className="relative order-1">
+                        <Card className={cn("glass overflow-hidden transition-all duration-500", isFinalized && "blur-sm opacity-40 pointer-events-none select-none")}>
+                            <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-accent/5 p-3 sm:p-4">
+                                <div className="flex items-center gap-2 sm:gap-3">
+                                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
+                                        <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <CardTitle className="text-sm sm:text-base">Müsaitlik Takvimi</CardTitle>
+                                        <CardDescription className="text-xs sm:text-sm truncate">
+                                            {currentUser
+                                                ? "Müsait saatlerine tıkla, tekrar tıkla kaldır"
+                                                : "Önce ismini seç"}
+                                        </CardDescription>
+                                    </div>
                                 </div>
-                                <div className="flex-1 min-w-0">
-                                    <CardTitle className="text-sm sm:text-base">Müsaitlik Takvimi</CardTitle>
-                                    <CardDescription className="text-xs sm:text-sm truncate">
-                                        {currentUser
-                                            ? "Müsait saatlerine tıkla, tekrar tıkla kaldır"
-                                            : "Önce ismini seç"}
-                                    </CardDescription>
-                                </div>
-                            </div>
-                        </CardHeader>
-                        <CardContent className="p-2 sm:p-4">
-                            <CalendarGrid
-                                meeting={meeting}
-                                currentUserId={currentUser?.participantId || null}
-                                selectedSlots={selectedSlots}
-                                onSlotsChange={handleSlotsChange}
-                            />
-                        </CardContent>
-                    </Card>
+                            </CardHeader>
+                            <CardContent className="p-2 sm:p-4">
+                                <CalendarGrid
+                                    meeting={meeting}
+                                    currentUserId={currentUser?.participantId || null}
+                                    selectedSlots={selectedSlots}
+                                    onSlotsChange={handleSlotsChange}
+                                />
+                            </CardContent>
+                        </Card>
+
+                        {isFinalized && meeting.meta.finalizedSlotId && (
+                            <MeetingFinalizedView meeting={meeting} finalizedSlotId={meeting.meta.finalizedSlotId} />
+                        )}
+                    </div>
 
                     {/* Sidebar */}
                     <div className="order-2 lg:order-2 space-y-4">
@@ -351,6 +362,19 @@ export default function MeetingPage() {
                                 meetingId={meetingId}
                                 adminToken={adminToken}
                                 onUpdate={() => fetchMeeting(true)}
+                                onFinalize={() => setShowFinalizeModal(true)}
+                            />
+                        )}
+
+                        {/* Finalize Modal */}
+                        {isAdmin && adminToken && (
+                            <FinalizeMeetingModal
+                                meeting={meeting}
+                                meetingId={meetingId}
+                                adminToken={adminToken}
+                                isOpen={showFinalizeModal}
+                                onClose={() => setShowFinalizeModal(false)}
+                                onFinalized={() => fetchMeeting(true)}
                             />
                         )}
                     </div>

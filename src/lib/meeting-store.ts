@@ -448,3 +448,35 @@ export async function deleteParticipant(
 
     return { success: true };
 }
+
+/**
+ * Finalize a meeting with a selected slot
+ */
+export async function finalizeMeeting(
+    meetingId: string,
+    slotId: string
+): Promise<{ success: boolean; error?: string }> {
+    const redis = getRedisClient();
+    const key = getMeetingKey(meetingId);
+
+    // Verify meeting exists
+    const exists = await redis.exists(key);
+    if (!exists) {
+        return { success: false, error: "Toplantı bulunamadı" };
+    }
+
+    // Update status and finalizedSlotId atomically
+    const pipeline = redis.pipeline();
+    pipeline.call("JSON.SET", key, "$.meta.status", JSON.stringify("finalized"));
+    pipeline.call("JSON.SET", key, "$.meta.finalizedSlotId", JSON.stringify(slotId));
+    await pipeline.exec();
+
+    // Publish event
+    await publishMessage("meeting_updates", {
+        type: "MEETING_FINALIZED",
+        meetingId,
+        slots: [slotId], // Sending the finalized slot in slots array
+    } as SocketMessage);
+
+    return { success: true };
+}

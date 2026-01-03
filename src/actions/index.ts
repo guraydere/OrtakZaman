@@ -12,4 +12,5 @@ export {
     resetSessionAction,
     deleteParticipantAction,
     validateAdminAction,
+    finalizeMeetingAction,
 } from "./meeting-actions";

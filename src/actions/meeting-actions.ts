@@ -15,6 +15,7 @@ import {
     resetParticipantSession,
     validateAdminToken,
     deleteParticipant as deleteParticipantInStore,
+    finalizeMeeting as finalizeMeetingInStore,
     generateDeviceToken,
     generateGuestRequestId,
     checkGuestRequestRateLimit,
@@ -347,5 +348,27 @@ export async function validateAdminAction(
         return await validateAdminToken(meetingId, adminToken);
     } catch {
         return false;
+    }
+}
+
+/**
+ * Finalize meeting with a selected slot
+ */
+export async function finalizeMeetingAction(
+    meetingId: string,
+    slotId: string,
+    adminToken: string
+): Promise<{ success: boolean; error?: string }> {
+    try {
+        const isAdmin = await validateAdminToken(meetingId, adminToken);
+        if (!isAdmin) {
+            return { success: false, error: "Yetkiniz yok" };
+        }
+
+        const result = await finalizeMeetingInStore(meetingId, slotId);
+        return result;
+    } catch (error) {
+        console.error("finalizeMeetingAction error:", error);
+        return { success: false, error: "İşlem başarısız" };
     }
 }

@@ -19,6 +19,7 @@ import {
     Trash2,
     Loader2,
     Shield,
+    CheckCircle,
 } from "lucide-react";
 import type { PublicMeeting } from "@/types";
 
@@ -27,9 +28,10 @@ interface AdminPanelProps {
     meetingId: string;
     adminToken: string;
     onUpdate: () => void;
+    onFinalize: () => void;
 }
 
-export function AdminPanel({ meeting, meetingId, adminToken, onUpdate }: AdminPanelProps) {
+export function AdminPanel({ meeting, meetingId, adminToken, onUpdate, onFinalize }: AdminPanelProps) {
     const [isLoading, setIsLoading] = useState<string | null>(null);
 
     const handleFreeze = async () => {
@@ -127,6 +129,17 @@ export function AdminPanel({ meeting, meetingId, adminToken, onUpdate }: AdminPa
                         )}
                     </Button>
                 </div>
+
+                {/* Finalize Meeting */}
+                {meeting.meta.status !== "finalized" && (
+                    <Button
+                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                        onClick={onFinalize}
+                    >
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Toplantıyı Sonlandır
+                    </Button>
+                )}
 
                 {/* Guest Requests */}
                 {guestRequests.length > 0 && (

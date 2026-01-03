@@ -6,8 +6,9 @@ export interface MeetingMeta {
     adminToken: string;
     createdAt: number;
     expiresAt: number;
-    status: "active" | "frozen";
+    status: "active" | "frozen" | "finalized";
     allowGuest: boolean;
+    finalizedSlotId?: string;
 }
 
 export interface Schedule {
@@ -75,7 +76,8 @@ export type SocketMessageType =
     | "GUEST_REJECTED"
     | "MEETING_FROZEN"
     | "MEETING_UNFROZEN"
-    | "SESSION_RESET";
+    | "SESSION_RESET"
+    | "MEETING_FINALIZED";
 
 export interface SocketMessage {
     type: SocketMessageType;

@@ -36,5 +36,6 @@ export {
     resetParticipantSession,
     validateAdminToken,
     deleteParticipant,
+    finalizeMeeting,
 } from "./meeting-store";
 export { checkRateLimit, checkGuestRequestRateLimit } from "./rate-limit";

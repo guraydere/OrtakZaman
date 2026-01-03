@@ -23,7 +23,7 @@ export const errorAtom = atom<string | null>(null);
 // Meeting status derived atom
 export const isFrozenAtom = atom((get) => {
     const meeting = get(meetingAtom);
-    return meeting?.meta.status === "frozen";
+    return meeting?.meta.status === "frozen" || meeting?.meta.status === "finalized";
 });
 
 // ===========================================
