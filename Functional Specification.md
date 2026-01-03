@@ -34,7 +34,10 @@ Kullanıcının siteye ilk girdiği "Landing Page"dir. Çok sade ve odaklı olma
 
 - **Buluşma Başlığı (Input):** Örn: "Halı Saha Maçı", "Proje Review".
 - **Açıklama (Textarea - Opsiyonel):** Örn: "Arkadaşlar bu hafta içi akşam bir saat belirleyelim."
-- **Tarih Seçici (Date Picker):** Genellikle "Hafta" bazlı seçim (Örn: 21-27 Ekim haftasını seç). Veya belirli günleri tek tek seçme imkanı.
+- **Tarih Seçici (Date Picker):** 
+  - Başlangıç bugünden itibaren seçilebilir (Geçmişe izin yok).
+  - En fazla 1 ay ileriye gidilebilir.
+  - Seçilen aralık (Buluşma süresi) en fazla 1 hafta (7 gün) olabilir.
 - **Katılımcı Listesi (Multi-Input):** Yönetici buraya isimleri yazar ve 'Enter'a basar. (Ali, Ayşe, Mehmet...).
 - **Oluştur Butonu:** "Buluşma Linki Yarat".
 
@@ -90,7 +93,27 @@ Uygulamanın kalbidir. Kullanıcı kimliğini seçtikten sonra buraya düşer.
 
 **Anlık Geri Bildirim:** Kullanıcı bir kutuyu boyadığında, sayfa yenilenmeden o kutunun rengi "Benim Seçimim" rengine döner. Aynı zamanda ortak ısı haritası güncellenir.
 
+
 ---
+
+### Ekran D: Toplantı Sonuç Ekranı (Finalized View)
+
+Toplantı yönetici tarafından sonlandırıldığında devreye giren "Salt Okunur" ekrandır. Takvim ve diğer kontroller tamamen gizlenir.
+
+**Görsel Ögeler:**
+
+- **Başlık ve Açıklama:** Toplantının adı ve notu.
+- **Kesinleşen Zaman:** Seçilen tarih ve saat (Büyük ve vurgulu).
+- **Katılımcı Listeleri:**
+  - ✅ **Gelebilecekler:** O saatte uygun olanlar.
+  - ❌ **Gelemeyecekler:** O saatte uygun olmayanlar.
+
+**Aksiyon:**
+- Ekran statiktir, herhangi bir seçim veya değişiklik yapılamaz.
+- "Yeni Toplantı Oluştur" butonu eklenebilir.
+
+---
+
 
 ## 4. Normal Akış Senaryosu (Happy Path)
 

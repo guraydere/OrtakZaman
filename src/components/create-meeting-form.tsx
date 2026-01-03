@@ -31,8 +31,8 @@ export function CreateMeetingForm() {
     const [description, setDescription] = useState("");
     const [participants, setParticipants] = useState<string[]>([]);
     const [dateRange, setDateRange] = useState<DateRange | undefined>({
-        from: startOfWeek(new Date(), { weekStartsOn: 1 }),
-        to: endOfWeek(new Date(), { weekStartsOn: 1 }),
+        from: new Date(),
+        to: new Date() // Default to today only
     });
     const [allowGuest, setAllowGuest] = useState(true);
     const [startHour, setStartHour] = useState(9);
@@ -94,6 +94,28 @@ export function CreateMeetingForm() {
         }
     };
 
+    const onDateSelect = (range: DateRange | undefined) => {
+        if (!range?.from) {
+            setDateRange(range);
+            return;
+        }
+
+        const fromDate = range.from; // Capture defined value
+
+        // Enforce max 7 days
+        const newRange = { ...range };
+        if (newRange.to) {
+            const diffTime = Math.abs(newRange.to.getTime() - fromDate.getTime());
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays > 6) { // 6 because from 1st to 7th is 6 days difference but 7 days selected
+                newRange.to = addDays(fromDate, 6);
+            }
+        }
+
+        setDateRange(newRange);
+    };
+
     // Calculate selected days count
     const selectedDaysCount = dateRange?.from && dateRange?.to
         ? Math.ceil((dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24)) + 1
@@ -102,8 +124,8 @@ export function CreateMeetingForm() {
     // Format date range for display
     const dateRangeText = dateRange?.from
         ? dateRange.to
-            ? `${format(dateRange.from, "d MMM", { locale: tr })} - ${format(dateRange.to, "d MMM", { locale: tr })}`
-            : format(dateRange.from, "d MMMM yyyy", { locale: tr })
+            ? `${format(dateRange.from!, "d MMM", { locale: tr })} - ${format(dateRange.to, "d MMM", { locale: tr })}`
+            : format(dateRange.from!, "d MMMM yyyy", { locale: tr })
         : "Tarih seçilmedi";
 
     return (
@@ -206,9 +228,11 @@ export function CreateMeetingForm() {
                             <Calendar
                                 mode="range"
                                 selected={dateRange}
-                                onSelect={setDateRange}
+                                onSelect={onDateSelect}
                                 numberOfMonths={1}
                                 disabled={{ before: new Date() }}
+                                fromDate={new Date()}
+                                toDate={addDays(new Date(), 30)}
                                 className="rounded-lg border-0 scale-[0.95] sm:scale-100"
                             />
                         </div>

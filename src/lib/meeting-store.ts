@@ -17,7 +17,7 @@ import type {
 } from "@/types";
 
 const MEETING_PREFIX = "meeting:";
-const MEETING_TTL = 7 * 24 * 60 * 60; // 7 days in seconds
+const MEETING_TTL = 42 * 24 * 60 * 60; // 6 weeks (42 days) in seconds
 
 /**
  * Get Redis key for a meeting

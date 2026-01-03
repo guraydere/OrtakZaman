@@ -269,116 +269,120 @@ export default function MeetingPage() {
 
             {/* Main Content */}
             <main className="relative container mx-auto px-3 sm:px-4 py-4 sm:py-6">
-                <div className="flex flex-col lg:grid lg:grid-cols-[1fr_320px] gap-4 sm:gap-6">
-                    {/* Calendar Grid */}
-                    <div className="relative order-1">
-                        <Card className={cn("glass overflow-hidden transition-all duration-500", isFinalized && "blur-sm opacity-40 pointer-events-none select-none")}>
-                            <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-accent/5 p-3 sm:p-4">
-                                <div className="flex items-center gap-2 sm:gap-3">
-                                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
-                                        <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                {isFinalized && meeting.meta.finalizedSlotId ? (
+                    <MeetingFinalizedView meeting={meeting} finalizedSlotId={meeting.meta.finalizedSlotId} />
+                ) : (
+                    <div className="flex flex-col lg:grid lg:grid-cols-[1fr_320px] gap-4 sm:gap-6">
+                        {/* Calendar Grid */}
+                        <div className="relative order-1">
+                            <Card className={cn("glass overflow-hidden transition-all duration-500", isFinalized && "blur-sm opacity-40 pointer-events-none select-none")}>
+                                <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-accent/5 p-3 sm:p-4">
+                                    <div className="flex items-center gap-2 sm:gap-3">
+                                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
+                                            <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <CardTitle className="text-sm sm:text-base">Müsaitlik Takvimi</CardTitle>
+                                            <CardDescription className="text-xs sm:text-sm truncate">
+                                                {currentUser
+                                                    ? "Müsait saatlerine tıkla, tekrar tıkla kaldır"
+                                                    : "Önce ismini seç"}
+                                            </CardDescription>
+                                        </div>
                                     </div>
-                                    <div className="flex-1 min-w-0">
-                                        <CardTitle className="text-sm sm:text-base">Müsaitlik Takvimi</CardTitle>
-                                        <CardDescription className="text-xs sm:text-sm truncate">
-                                            {currentUser
-                                                ? "Müsait saatlerine tıkla, tekrar tıkla kaldır"
-                                                : "Önce ismini seç"}
-                                        </CardDescription>
-                                    </div>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="p-2 sm:p-4">
-                                <CalendarGrid
-                                    meeting={meeting}
-                                    currentUserId={currentUser?.participantId || null}
-                                    selectedSlots={selectedSlots}
-                                    onSlotsChange={handleSlotsChange}
-                                />
-                            </CardContent>
-                        </Card>
+                                </CardHeader>
+                                <CardContent className="p-2 sm:p-4">
+                                    <CalendarGrid
+                                        meeting={meeting}
+                                        currentUserId={currentUser?.participantId || null}
+                                        selectedSlots={selectedSlots}
+                                        onSlotsChange={handleSlotsChange}
+                                    />
+                                </CardContent>
+                            </Card>
 
-                        {isFinalized && meeting.meta.finalizedSlotId && (
-                            <MeetingFinalizedView meeting={meeting} finalizedSlotId={meeting.meta.finalizedSlotId} />
-                        )}
-                    </div>
-
-                    {/* Sidebar */}
-                    <div className="order-2 lg:order-2 space-y-4">
-                        {/* Mobile: Collapsible participants */}
-                        <div className="lg:hidden">
-                            <button
-                                onClick={() => setShowParticipants(!showParticipants)}
-                                className="w-full flex items-center justify-between p-3 rounded-xl bg-muted/50 border border-border"
-                            >
-                                <div className="flex items-center gap-2">
-                                    <Users className="w-4 h-4 text-primary" />
-                                    <span className="font-medium text-sm">Katılımcılar</span>
-                                    <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                                        {claimedCount}/{participantCount}
-                                    </span>
-                                </div>
-                                {showParticipants ? (
-                                    <ChevronUp className="w-4 h-4 text-muted-foreground" />
-                                ) : (
-                                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                                )}
-                            </button>
-
-                            {showParticipants && (
-                                <Card className="glass mt-2">
-                                    <CardContent className="p-3">
-                                        <ParticipantPanel
-                                            meeting={meeting}
-                                            currentUserId={currentUser?.participantId || null}
-                                        />
-                                    </CardContent>
-                                </Card>
+                            {isFinalized && meeting.meta.finalizedSlotId && (
+                                <MeetingFinalizedView meeting={meeting} finalizedSlotId={meeting.meta.finalizedSlotId} />
                             )}
                         </div>
 
-                        {/* Desktop: Always visible */}
-                        <Card className="glass hidden lg:block">
-                            <CardHeader className="border-b bg-muted/30 p-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                                        <Users className="w-5 h-5 text-primary" />
+                        {/* Sidebar */}
+                        <div className="order-2 lg:order-2 space-y-4">
+                            {/* Mobile: Collapsible participants */}
+                            <div className="lg:hidden">
+                                <button
+                                    onClick={() => setShowParticipants(!showParticipants)}
+                                    className="w-full flex items-center justify-between p-3 rounded-xl bg-muted/50 border border-border"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <Users className="w-4 h-4 text-primary" />
+                                        <span className="font-medium text-sm">Katılımcılar</span>
+                                        <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                                            {claimedCount}/{participantCount}
+                                        </span>
                                     </div>
-                                    <CardTitle className="text-base">Katılımcılar</CardTitle>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="p-4">
-                                <ParticipantPanel
+                                    {showParticipants ? (
+                                        <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                                    ) : (
+                                        <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                                    )}
+                                </button>
+
+                                {showParticipants && (
+                                    <Card className="glass mt-2">
+                                        <CardContent className="p-3">
+                                            <ParticipantPanel
+                                                meeting={meeting}
+                                                currentUserId={currentUser?.participantId || null}
+                                            />
+                                        </CardContent>
+                                    </Card>
+                                )}
+                            </div>
+
+                            {/* Desktop: Always visible */}
+                            <Card className="glass hidden lg:block">
+                                <CardHeader className="border-b bg-muted/30 p-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                                            <Users className="w-5 h-5 text-primary" />
+                                        </div>
+                                        <CardTitle className="text-base">Katılımcılar</CardTitle>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="p-4">
+                                    <ParticipantPanel
+                                        meeting={meeting}
+                                        currentUserId={currentUser?.participantId || null}
+                                    />
+                                </CardContent>
+                            </Card>
+
+                            {/* Admin Panel */}
+                            {isAdmin && adminToken && (
+                                <AdminPanel
                                     meeting={meeting}
-                                    currentUserId={currentUser?.participantId || null}
+                                    meetingId={meetingId}
+                                    adminToken={adminToken}
+                                    onUpdate={() => fetchMeeting(true)}
+                                    onFinalize={() => setShowFinalizeModal(true)}
                                 />
-                            </CardContent>
-                        </Card>
+                            )}
 
-                        {/* Admin Panel */}
-                        {isAdmin && adminToken && (
-                            <AdminPanel
-                                meeting={meeting}
-                                meetingId={meetingId}
-                                adminToken={adminToken}
-                                onUpdate={() => fetchMeeting(true)}
-                                onFinalize={() => setShowFinalizeModal(true)}
-                            />
-                        )}
-
-                        {/* Finalize Modal */}
-                        {isAdmin && adminToken && (
-                            <FinalizeMeetingModal
-                                meeting={meeting}
-                                meetingId={meetingId}
-                                adminToken={adminToken}
-                                isOpen={showFinalizeModal}
-                                onClose={() => setShowFinalizeModal(false)}
-                                onFinalized={() => fetchMeeting(true)}
-                            />
-                        )}
+                            {/* Finalize Modal */}
+                            {isAdmin && adminToken && (
+                                <FinalizeMeetingModal
+                                    meeting={meeting}
+                                    meetingId={meetingId}
+                                    adminToken={adminToken}
+                                    isOpen={showFinalizeModal}
+                                    onClose={() => setShowFinalizeModal(false)}
+                                    onFinalized={() => fetchMeeting(true)}
+                                />
+                            )}
+                        </div>
                     </div>
-                </div>
+                )}
             </main>
 
             {/* Mobile: Floating share button */}

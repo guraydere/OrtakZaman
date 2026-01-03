@@ -1,10 +1,10 @@
-import { PublicMeeting } from "@/types";
+import { Meeting, PublicMeeting } from "@/types/meeting";
 import { formatDayHeaderTR, formatHour } from "@/lib/date-utils";
-import { Check, X, Calendar, Clock, MapPin } from "lucide-react";
+import { Check, X, Calendar, Clock, PartyPopper } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface MeetingFinalizedViewProps {
-    meeting: PublicMeeting;
+    meeting: Meeting | PublicMeeting;
     finalizedSlotId: string;
 }
 
@@ -22,86 +22,88 @@ export function MeetingFinalizedView({ meeting, finalizedSlotId }: MeetingFinali
     const absentees = participants.filter(p => !p.slots.includes(finalizedSlotId));
 
     return (
-        <div className="absolute inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in zoom-in duration-300">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-border w-full max-w-md overflow-hidden relative">
-                {/* Confetti effect background (optional, simple gradient for now) */}
-                <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-10" />
+        <div className="flex-1 flex flex-col items-center justify-center p-4 animate-in fade-in duration-500">
+            <div className="w-full max-w-3xl space-y-8">
 
-                <div className="p-6 sm:p-8 relative">
-                    <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center mx-auto mb-6 shadow-inner">
-                        <Check className="w-8 h-8 text-emerald-600 dark:text-emerald-400" strokeWidth={3} />
+                {/* Header Section */}
+                <div className="text-center space-y-4">
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 mb-4 shadow-lg ring-8 ring-emerald-50 dark:ring-emerald-950/50">
+                        <PartyPopper className="w-10 h-10" />
                     </div>
 
-                    <h2 className="text-2xl sm:text-3xl font-bold text-center text-foreground mb-2">
-                        Toplantı Kesinleşti!
-                    </h2>
-                    <p className="text-center text-muted-foreground mb-8">
-                        Harika! Ortak zaman belirlendi.
-                    </p>
+                    <h1 className="text-4xl md:text-5xl font-black tracking-tight text-foreground bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400">
+                        {meeting.meta.title}
+                    </h1>
 
-                    {/* Date & Time Card */}
-                    <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 mb-8 border border-slate-100 dark:border-slate-800">
-                        <div className="flex items-center justify-center gap-3 text-lg font-medium mb-1">
-                            <Calendar className="w-5 h-5 text-indigo-500" />
-                            <span>{day}, {date}</span>
+                    {meeting.meta.description && (
+                        <p className="text-xl text-muted-foreground max-w-xl mx-auto leading-relaxed">
+                            {meeting.meta.description}
+                        </p>
+                    )}
+                </div>
+
+                {/* Main Result Card */}
+                <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-border/50 overflow-hidden">
+                    {/* Date/Time Banner */}
+                    <div className="bg-gradient-to-br from-indigo-500 to-violet-600 p-8 sm:p-10 text-white text-center">
+                        <div className="uppercase tracking-widest text-xs font-bold text-indigo-100 mb-4">
+                            Kesinleşen Tarih
                         </div>
-                        <div className="flex items-center justify-center gap-3 text-3xl font-bold text-indigo-600 dark:text-indigo-400">
-                            <Clock className="w-8 h-8" />
-                            <span>{formatHour(hour)}</span>
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12">
+                            <div className="flex items-center gap-4">
+                                <Calendar className="w-8 h-8 text-indigo-200" />
+                                <span className="text-3xl sm:text-4xl font-bold">{day}, {date}</span>
+                            </div>
+                            <div className="hidden sm:block w-px h-16 bg-white/20" />
+                            <div className="flex items-center gap-4">
+                                <Clock className="w-8 h-8 text-indigo-200" />
+                                <span className="text-4xl sm:text-5xl font-black tracking-widest">{formatHour(hour)}</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="space-y-6">
+                    {/* Participants Lists */}
+                    <div className="p-8 grid md:grid-cols-2 gap-8 md:divide-x dark:divide-slate-800">
+
                         {/* Attendees */}
-                        <div>
-                            <h3 className="text-sm font-semibold text-emerald-600 dark:text-emerald-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                                Katılanlar ({attendees.length})
+                        <div className="space-y-4">
+                            <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-500">
+                                <Check className="w-4 h-4" />
+                                Gelebilecekler ({attendees.length})
                             </h3>
-                            <div className="flex flex-wrap gap-2">
+                            <ul className="space-y-2">
                                 {attendees.map((p, i) => (
-                                    <span
-                                        key={i}
-                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 text-sm font-medium border border-emerald-100 dark:border-emerald-800"
-                                    >
-                                        <Check className="w-3.5 h-3.5" />
-                                        {p.name}
-                                    </span>
+                                    <li key={i} className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50/50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/50">
+                                        <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-800 flex items-center justify-center text-emerald-700 dark:text-emerald-300 font-bold text-sm">
+                                            {p.name.charAt(0).toUpperCase()}
+                                        </div>
+                                        <span className="font-medium text-foreground">{p.name}</span>
+                                    </li>
                                 ))}
                                 {attendees.length === 0 && (
-                                    <span className="text-sm text-muted-foreground italic pl-2">Kimse uygun değil mi? 🤔</span>
+                                    <p className="text-sm text-muted-foreground italic">Kimse bu saate uygun değil.</p>
                                 )}
-                            </div>
+                            </ul>
                         </div>
 
                         {/* Absentees */}
-                        {absentees.length > 0 && (
-                            <div>
-                                <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-slate-300" />
-                                    Uygun Olmayanlar ({absentees.length})
-                                </h3>
-                                <div className="flex flex-wrap gap-2">
-                                    {absentees.map((p, i) => (
-                                        <span
-                                            key={i}
-                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-sm border border-slate-100 dark:border-slate-700 opacity-75"
-                                        >
-                                            <X className="w-3.5 h-3.5" />
-                                            {p.name}
-                                        </span>
-                                    ))}
-                                </div>
+                        <div className="space-y-4">
+                            <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                <X className="w-4 h-4" />
+                                Gelemeyecekler ({absentees.length})
+                            </h3>
+                            <div className="flex flex-wrap gap-2">
+                                {absentees.map((p, i) => (
+                                    <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-sm font-medium">
+                                        {p.name}
+                                    </span>
+                                ))}
+                                {absentees.length === 0 && (
+                                    <p className="text-sm text-muted-foreground italic">Herkes katılabiliyor! 🎉</p>
+                                )}
                             </div>
-                        )}
+                        </div>
                     </div>
-                </div>
-
-                {/* Footer */}
-                <div className="p-4 bg-slate-50 dark:bg-slate-900/50 border-t border-border text-center">
-                    <p className="text-xs text-muted-foreground">
-                        OrtakZaman ile planlandı 🚀
-                    </p>
                 </div>
             </div>
         </div>

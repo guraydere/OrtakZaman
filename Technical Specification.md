@@ -73,7 +73,7 @@ Projede ilişkisel veritabanı (SQL) yerine Belge Tabanlı (Document Store) yap�
 
 **Açıklamalar:**
 - `adminToken`: Yönetici yetkisi için gizli anahtar
-- `expiresAt`: Toplantı tarihi geçince silinmesi için
+- `expiresAt`: Toplantı tarihi geçince silinmesi için (TTL: 6 Hafta)
 - `status`: `active` veya `frozen` (yönetici kilitledi)
 - `allowGuest`: "Listede yokum" özelliği açık mı?
 - `deviceToken`: O cihazı tanıyan imza
@@ -169,6 +169,7 @@ Next.js stateless olduğu için WebSocket sunucusunu ayrı bir process veya Next
     /CalendarGrid.tsx    (Etkileşimli ızgara)
     /Heatmap.tsx         (Görsel hesaplama katmanı)
     /AdminPanel.tsx      (Onay/Red butonları)
+    /MeetingFinalizedView.tsx (Sonuç ekranı)
   /lib
     redis.ts             (Redis bağlantı ve fonksiyonları)
     socket.ts            (Client-side socket bağlantısı)
