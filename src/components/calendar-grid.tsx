@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useCallback, useState } from "react";
+import { useMemo, useCallback, useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { formatDayHeaderTR, formatHour, createSlotId } from "@/lib/client";
 import { useMeeting } from "@/store";
@@ -23,6 +23,8 @@ export function CalendarGrid({
     const { isFrozen } = useMeeting();
     const [isDragging, setIsDragging] = useState(false);
     const [dragMode, setDragMode] = useState<"add" | "remove">("add");
+
+    const lastTouchTimeRef = useRef<number>(0);
 
     const { dates } = meeting.schedule;
     const { startHour, endHour } = meeting.schedule;
@@ -92,6 +94,10 @@ export function CalendarGrid({
     const handleMouseDown = useCallback(
         (slotId: string) => {
             if (isFrozen || !currentUserId) return;
+
+            // Ignore mouse events that fire immediately after touch events
+            if (Date.now() - lastTouchTimeRef.current < 500) return;
+
             const isSelected = selectedSlots.includes(slotId);
             setDragMode(isSelected ? "remove" : "add");
             setIsDragging(true);
@@ -116,9 +122,9 @@ export function CalendarGrid({
     const handleMouseUp = useCallback(() => setIsDragging(false), []);
 
     const handleTouchStart = useCallback(
-        (slotId: string, e: React.TouchEvent) => {
+        (slotId: string) => {
             if (isFrozen || !currentUserId) return;
-            e.preventDefault();
+            lastTouchTimeRef.current = Date.now();
             toggleSlot(slotId);
         },
         [isFrozen, currentUserId, toggleSlot]
@@ -246,10 +252,10 @@ export function CalendarGrid({
                                             isDisabled && "cursor-not-allowed opacity-50",
                                             !isDisabled && "cursor-pointer"
                                         )}
-                                        style={bgStyle}
+                                        style={{ ...bgStyle, touchAction: "none" }}
                                         onMouseDown={() => handleMouseDown(slotId)}
                                         onMouseEnter={() => handleMouseEnter(slotId)}
-                                        onTouchStart={(e) => handleTouchStart(slotId, e)}
+                                        onTouchStart={() => handleTouchStart(slotId)}
                                         disabled={isDisabled}
                                     >
                                         {/* My selection indicator */}
