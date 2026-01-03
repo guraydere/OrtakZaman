@@ -51,7 +51,7 @@ services:
   # RedisInsight - Veritabanı Yönetim Arayüzü
   redis_insight:
     image: redis/redisinsight:latest
-    container_name: ortakzaman_insight
+    container_name: ortakzaman_insight_v2
     ports:
       - "8001:5540"
     depends_on:

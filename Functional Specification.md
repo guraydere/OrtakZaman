@@ -28,7 +28,15 @@ Uygulama temel olarak 3 ana arayüz durumundan oluşur.
 
 ### Ekran A: Karşılama ve Oluşturma (Landing & Create)
 
-Kullanıcının siteye ilk girdiği "Landing Page"dir. Çok sade ve odaklı olmalıdır.
+Kullanıcı siteye girdiğinde artık **Karşılama Modalı** ile karşılaşır (ilk ziyaretse).
+
+**1. Karşılama Modalı (Yeni):**
+- Projenin amacını ve nasıl çalıştığını anlatır.
+- "Bir daha gösterme" seçeneği (LocalStorage).
+- "Yardım" butonu ile tekrar açılabilir.
+
+**2. Form Ekranı:**
+- Doğrudan toplantı oluşturma formu görünür (Hero text kaldırıldı).
 
 **Görsel Ögeler:**
 

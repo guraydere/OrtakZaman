@@ -170,6 +170,7 @@ Next.js stateless olduğu için WebSocket sunucusunu ayrı bir process veya Next
     /Heatmap.tsx         (Görsel hesaplama katmanı)
     /AdminPanel.tsx      (Onay/Red butonları)
     /MeetingFinalizedView.tsx (Sonuç ekranı)
+    /WelcomeModal.tsx    (Onboarding - Yeni)
   /lib
     redis.ts             (Redis bağlantı ve fonksiyonları)
     socket.ts            (Client-side socket bağlantısı)
