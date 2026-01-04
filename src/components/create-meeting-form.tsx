@@ -465,7 +465,7 @@ export function CreateMeetingForm() {
                                     <span style={{ fontSize: "14px", fontWeight: "600", color: "#92400e" }}>⏰ Saat Aralığı</span>
                                 </div>
                                 <p style={{ fontSize: "12px", color: "#d97706", marginBottom: "12px" }}>
-                                    Müsaitlik sorulacak saatler
+                                    Müsaitlik sorulacak saat aralığı
                                 </p>
                                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                                     <div style={{ flex: 1 }}>

@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 import { formatDayHeaderTR, formatHour } from "@/lib/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Lock, AlertCircle, Sparkles, Users, Share2, ChevronDown, ChevronUp, CheckCircle } from "lucide-react";
+import { Calendar, Lock, AlertCircle, Sparkles, Users, Share2, ChevronDown, ChevronUp, CheckCircle, Loader2 } from "lucide-react";
 import type { SocketMessage } from "@/types";
 
 export default function MeetingPage() {

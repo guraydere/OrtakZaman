@@ -1,10 +1,18 @@
 import { getRedisClient } from "./redis";
+import { createHash } from "crypto";
 
 const RATE_LIMIT_PREFIX = "ratelimit:";
 const DEFAULT_WINDOW_MS = parseInt(process.env.RATE_LIMIT_WINDOW_MS || "60000");
 const DEFAULT_MAX_REQUESTS = parseInt(
     process.env.RATE_LIMIT_MAX_REQUESTS || "10"
 );
+
+/**
+ * Hash IP address for privacy
+ */
+function hashIP(ip: string): string {
+    return createHash("sha256").update(ip).digest("hex");
+}
 
 /**
  * Check and increment rate limit for an IP
@@ -17,7 +25,10 @@ export async function checkRateLimit(
     maxRequests: number = DEFAULT_MAX_REQUESTS
 ): Promise<{ allowed: boolean; remaining: number; resetAt: number }> {
     const redis = getRedisClient();
-    const key = `${RATE_LIMIT_PREFIX}${action}:${ip}`;
+    // Hash the IP before using it in the key
+    const hashedIp = hashIP(ip);
+    const key = `${RATE_LIMIT_PREFIX}${action}:${hashedIp}`;
+
     const now = Date.now();
     const windowSeconds = Math.ceil(windowMs / 1000);
 
