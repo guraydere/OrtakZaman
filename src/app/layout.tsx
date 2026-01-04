@@ -31,6 +31,7 @@ export const metadata: Metadata = {
 
 import { CookieBanner } from "@/components/cookie-banner";
 import { Footer } from "@/components/footer";
+import { SiteLayout } from "@/components/site-layout";
 
 export default function RootLayout({
   children,
@@ -42,10 +43,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
-        <div className="flex-1">
-          {children}
-        </div>
-        <Footer />
+        <SiteLayout>
+          <div className="flex-1">
+            {children}
+          </div>
+          <Footer />
+        </SiteLayout>
         <CookieBanner />
       </body>
     </html>
