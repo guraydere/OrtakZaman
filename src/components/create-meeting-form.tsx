@@ -575,6 +575,9 @@ export function CreateMeetingForm() {
                             )}
                         </button>
                     </div>
+                    <p style={{ marginTop: "16px", fontSize: "11px", color: "#6b7280", textAlign: "center", lineHeight: "1.5" }}>
+                        Buluşma Oluştur&apos;a tıklayarak; hizmetin sağlanması için verilerinizin Finlandiya&apos;daki sunucularda işleneceğini, IP adresinizin güvenlik amacıyla şifrelenerek (hash) sadece 60 saniye saklanacağını kabul edersiniz.
+                    </p>
                 </div >
             </form >
         </>
