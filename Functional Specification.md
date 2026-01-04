@@ -35,7 +35,12 @@ Kullanıcı siteye girdiğinde artık **Karşılama Modalı** ile karşılaşır
 - "Bir daha gösterme" seçeneği (LocalStorage).
 - "Yardım" butonu ile tekrar açılabilir.
 
-**2. Form Ekranı:**
+**2. Global Header (Tüm Sayfalarda):**
+- **Logo:** Ana sayfaya (`/`) yönlendirir.
+- **Yardım Butonu:** Karşılama Modalını açar.
+- Ana sayfada şeffaf, diğer sayfalarda beyaz arka planlı.
+
+**3. Form Ekranı:**
 - Doğrudan toplantı oluşturma formu görünür (Hero text kaldırıldı).
 
 **Görsel Ögeler:**

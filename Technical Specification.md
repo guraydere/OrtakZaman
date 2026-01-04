@@ -162,15 +162,24 @@ Next.js stateless olduğu için WebSocket sunucusunu ayrı bir process veya Next
 ```
 /src
   /app
-    /page.tsx            (Landing)
+    /page.tsx            (Landing - Ana Sayfa)
+    /privacy/page.tsx    (Gizlilik ve Aydınlatma Metni)
+    /terms/page.tsx      (Kullanım Koşulları)
     /m/[id]/page.tsx     (Toplantı Ana Ekranı - Ekran C)
     /m/[id]/join/page.tsx (Kimlik Seçimi - Ekran B)
+    /layout.tsx          (Root Layout - SiteLayout sarmalı)
+    /globals.css         (Tailwind CSS + Tema Değişkenleri)
   /components
+    /Header.tsx          (Global Header - Logo + Yardım)
+    /SiteLayout.tsx      (Layout Wrapper - WelcomeModal state yönetimi)
+    /Footer.tsx          (Global Footer - Yasal linkler)
     /CalendarGrid.tsx    (Etkileşimli ızgara)
     /Heatmap.tsx         (Görsel hesaplama katmanı)
     /AdminPanel.tsx      (Onay/Red butonları)
     /MeetingFinalizedView.tsx (Sonuç ekranı)
-    /WelcomeModal.tsx    (Onboarding - Yeni)
+    /WelcomeModal.tsx    (Onboarding - Yardım)
+    /CookieBanner.tsx    (KVKK Uyarısı)
+    /CreateMeetingForm.tsx (Toplantı oluşturma formu)
   /lib
     redis.ts             (Redis bağlantı ve fonksiyonları)
     socket.ts            (Client-side socket bağlantısı)
@@ -181,7 +190,40 @@ Next.js stateless olduğu için WebSocket sunucusunu ayrı bir process veya Next
 
 ---
 
-## 7. Deployment (Docker Compose)
+## 7. Global Layout Mimarisi
+
+Uygulama tutarlı bir navigasyon deneyimi sağlamak için merkezi bir layout yapısına sahiptir.
+
+### Layout Hiyerarşisi
+
+```
+RootLayout (layout.tsx)
+└── SiteLayout (Client Component)
+    ├── Header (Logo + Yardım butonu)
+    ├── WelcomeModal (Global state)
+    └── {children} (Sayfa içeriği)
+└── Footer (Yasal linkler)
+└── CookieBanner (KVKK uyarısı)
+```
+
+### Header Davranışı
+
+| Sayfa | Pozisyon | Arka Plan | Metin Rengi |
+|-------|----------|-----------|-------------|
+| Ana Sayfa (`/`) | `absolute` | Şeffaf | Beyaz |
+| Diğer Sayfalar | `relative` | Beyaz (#fff) | Koyu Gri |
+
+- **Ana Sayfa:** Header gradient arka planın üzerine oturur, sayfa ile birlikte kayar (fixed değil).
+- **Diğer Sayfalar:** Header sayfa akışının parçasıdır, içeriği aşağı iter.
+
+### Yasal Sayfalar
+
+- `/privacy` - Gizlilik ve Aydınlatma Metni (KVKK/GDPR uyumlu)
+- `/terms` - Kullanım Koşulları
+
+---
+
+## 8. Deployment (Docker Compose)
 
 Hetzner sunucunda projeyi ayağa kaldırmak için `docker-compose.yml`:
 

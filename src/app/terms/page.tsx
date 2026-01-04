@@ -39,7 +39,7 @@ export default function TermsPage() {
                         <section>
                             <h3 className="text-xl font-bold text-foreground mb-4" style={{ marginBottom: "1rem" }}>3. Hassas Veri Uyarısı</h3>
                             <p className="text-base leading-7">
-                                Kullanıcılar; toplantı başlıklarında veya isim alanlarında T.C. Kimlik No, telefon numarası, sağlık verisi, siyasi görüş gibi Özel Nitelikli Kişisel Veri girmemeyi kabul ve taahhüt eder.
+                                Kullanıcılar; toplantı başlıklarında veya isim alanlarında T.C. Kimlik No, telefon numarası, sağlık verisi, siyasi görüş gibi Özel Nitelikli Kişisel Veri veya suç oluşturabilecek nitelikte içerik girmemeyi kabul ve taahhüt eder. Tespit edilen uygunsuz içerikler derhal silinir ve gerektiğinde yasal mercilere bildirilir.
                             </p>
                         </section>
                     </CardContent>
