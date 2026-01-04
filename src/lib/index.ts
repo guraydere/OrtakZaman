@@ -39,3 +39,12 @@ export {
     finalizeMeeting,
 } from "./meeting-store";
 export { checkRateLimit, checkGuestRequestRateLimit } from "./rate-limit";
+export {
+    trackPageView,
+    trackMeetingCreated,
+    trackVote,
+    getDailyStats,
+    getGlobalStats,
+    getStatsRange,
+} from "./analytics";
+export type { DailyStats, GlobalStats } from "./analytics";

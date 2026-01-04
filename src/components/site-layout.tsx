@@ -4,10 +4,14 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Header } from "@/components/header";
 import { WelcomeModal } from "@/components/welcome-modal";
+import { usePageView } from "@/hooks/use-page-view";
 
 export function SiteLayout({ children }: { children: React.ReactNode }) {
     const [showWelcome, setShowWelcome] = useState(false);
     const pathname = usePathname();
+
+    // Track page views
+    usePageView();
 
     // Auto-show welcome modal only on home page if not seen
     useEffect(() => {

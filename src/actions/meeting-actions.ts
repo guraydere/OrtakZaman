@@ -19,6 +19,8 @@ import {
     generateDeviceToken,
     generateGuestRequestId,
     checkGuestRequestRateLimit,
+    trackMeetingCreated,
+    trackVote,
 } from "@/lib";
 import type {
     CreateMeetingInput,
@@ -60,11 +62,16 @@ export async function createMeetingAction(
             return { success: false, error: "En az bir katılımcı eklenmelidir" };
         }
 
+        const cleanedParticipants = input.participantNames.map((n) => n.trim()).filter(Boolean);
+
         const { meetingId, adminToken } = await createMeetingInStore({
             ...input,
             title: input.title.trim(),
-            participantNames: input.participantNames.map((n) => n.trim()).filter(Boolean),
+            participantNames: cleanedParticipants,
         });
+
+        // Track analytics
+        await trackMeetingCreated(cleanedParticipants.length);
 
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
@@ -170,7 +177,14 @@ export async function updateAvailabilityAction(
             return { success: false, error: "Oturum geçersiz" };
         }
 
-        return await updateAvailabilityInStore(meetingId, participantId, slots);
+        const result = await updateAvailabilityInStore(meetingId, participantId, slots);
+
+        // Track vote on successful update
+        if (result.success) {
+            await trackVote();
+        }
+
+        return result;
     } catch (error) {
         console.error("updateAvailabilityAction error:", error);
         return { success: false, error: "Güncelleme başarısız" };
