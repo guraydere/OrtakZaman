@@ -1,5 +1,5 @@
 import { getRedisClient } from "./redis";
-import { createHash } from "crypto";
+import { createHash, randomBytes } from "crypto";
 
 const RATE_LIMIT_PREFIX = "ratelimit:";
 const DEFAULT_WINDOW_MS = parseInt(process.env.RATE_LIMIT_WINDOW_MS || "60000");
@@ -8,10 +8,32 @@ const DEFAULT_MAX_REQUESTS = parseInt(
 );
 
 /**
- * Hash IP address for privacy
+ * Get or create a daily rotating salt
+ * This ensures that the hash of an IP changes every day
  */
-function hashIP(ip: string): string {
-    return createHash("sha256").update(ip).digest("hex");
+async function getDailySalt(): Promise<string> {
+    const redis = getRedisClient();
+    const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const saltKey = `${RATE_LIMIT_PREFIX}salt:${date}`;
+
+    // Try to get existing salt
+    let salt = await redis.get(saltKey);
+
+    if (!salt) {
+        // Create new random salt
+        salt = randomBytes(16).toString('hex');
+        // Set with 26 hours TTL to ensure overlap coverage
+        await redis.set(saltKey, salt, "EX", 26 * 60 * 60);
+    }
+
+    return salt;
+}
+
+/**
+ * Hash IP address with salt for privacy
+ */
+function hashIP(ip: string, salt: string): string {
+    return createHash("sha256").update(ip + salt).digest("hex");
 }
 
 /**
@@ -25,8 +47,12 @@ export async function checkRateLimit(
     maxRequests: number = DEFAULT_MAX_REQUESTS
 ): Promise<{ allowed: boolean; remaining: number; resetAt: number }> {
     const redis = getRedisClient();
-    // Hash the IP before using it in the key
-    const hashedIp = hashIP(ip);
+
+    // Get daily salt first
+    const salt = await getDailySalt();
+
+    // Hash the IP with the salt
+    const hashedIp = hashIP(ip, salt);
     const key = `${RATE_LIMIT_PREFIX}${action}:${hashedIp}`;
 
     const now = Date.now();
