@@ -1,12 +1,13 @@
 services:
   # Next.js Uygulaması (Production Build)
   app:
+    container_name: ortakzaman-web
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_SOCKET_URL=https://socket.bulusma.uzmani.app
     restart: unless-stopped
-    ports:
-      - "3000:3000"
     environment:
       - NODE_ENV=production
       - REDIS_URL=redis://redis_db:6379
@@ -21,15 +22,21 @@ services:
       retries: 3
     networks:
       - ortakzaman_network
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ortakzaman.rule=Host(`bulusma.uzmani.app`)"
+      - "traefik.http.routers.ortakzaman.entrypoints=websecure"
+      - "traefik.http.routers.ortakzaman.tls=true"
+      - "traefik.http.services.ortakzaman.loadbalancer.server.port=3000"
 
   # Socket.io Server
   socket_server:
+    container_name: ortakzaman-socket
     build:
       context: ./socket-server
       dockerfile: Dockerfile
     restart: unless-stopped
-    ports:
-      - "3001:3001"
     environment:
       - NODE_ENV=production
       - REDIS_URL=redis://redis_db:6379
@@ -38,6 +45,13 @@ services:
         condition: service_healthy
     networks:
       - ortakzaman_network
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ortakzaman-socket.rule=Host(`socket.bulusma.uzmani.app`)"
+      - "traefik.http.routers.ortakzaman-socket.entrypoints=websecure"
+      - "traefik.http.routers.ortakzaman-socket.tls=true"
+      - "traefik.http.services.ortakzaman-socket.loadbalancer.server.port=3001"
 
   # Redis Veritabanı (JSON Modüllü)
   redis_db:
@@ -63,3 +77,5 @@ volumes:
 networks:
   ortakzaman_network:
     driver: bridge
+  proxy:
+    external: true
