@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import { Card, CardContent } from "@/components/ui/card";
+
+export const metadata: Metadata = {
+    title: 'Kullanım Koşulları',
+    description: 'OrtakZaman kullanım koşulları ve sorumluluk reddi.',
+    alternates: { canonical: '/terms' },
+};
 
 export default function TermsPage() {
     return (

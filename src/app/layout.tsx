@@ -13,25 +13,62 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "OrtakZaman - Ortak Müsait Zamanı Bul",
+  metadataBase: new URL('https://bulusma.uzmani.app'),
+  title: {
+    default: "OrtakZaman - Ortak Müsait Zamanı Bul",
+    template: "%s | OrtakZaman",
+  },
   description:
     "Grup buluşmaları için ortak müsait zamanı hızlıca belirleyin. Kayıt gerektirmez, link paylaşın, herkes zamanını işaretlesin.",
-  keywords: ["buluşma planlama", "müsaitlik", "takvim", "grup buluşma", "zaman bulma"],
+  keywords: ["buluşma planlama", "müsaitlik", "takvim", "grup buluşma", "zaman bulma", "toplantı planlama", "ortak zaman"],
+  authors: [{ name: "OrtakZaman" }],
+  creator: "OrtakZaman",
+  publisher: "OrtakZaman",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
   icons: {
     icon: "/favicon.webp",
     shortcut: "/favicon.webp",
     apple: "/favicon.webp",
   },
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     title: "OrtakZaman - Ortak Müsait Zamanı Bul",
     description: "Link paylaş, isim seç, zamanı işaretle. Kayıt gerektirmez!",
     type: "website",
+    url: 'https://bulusma.uzmani.app',
+    siteName: 'OrtakZaman',
+    locale: 'tr_TR',
+    images: [
+      {
+        url: '/ortakzaman_title.webp',
+        width: 2400,
+        height: 1260,
+        alt: 'OrtakZaman - Buluşma Planlayıcı',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'OrtakZaman - Ortak Müsait Zamanı Bul',
+    description: 'Link paylaş, isim seç, zamanı işaretle. Kayıt gerektirmez!',
+    images: ['/ortakzaman_title.webp'],
   },
 };
+
 
 import { CookieBanner } from "@/components/cookie-banner";
 import { Footer } from "@/components/footer";
 import { SiteLayout } from "@/components/site-layout";
+import { JsonLd } from "@/components/json-ld";
 
 export default function RootLayout({
   children,
@@ -40,6 +77,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="tr">
+      <head>
+        <JsonLd />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >

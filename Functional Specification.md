@@ -2,7 +2,7 @@
 
 ## 1. Proje Özeti ve Amaç
 
-**Proje Adı (Kod Adı):** "OrtakZaman" (veya "ZamanBul")
+**Proje Adı (Kod Adı):** "OrtakZaman" (veya "Bulusma")
 
 **Amaç:** Bir grup insanın, herhangi bir üyelik veya giriş işlemi yapmadan, ortak müsait zamanlarını en hızlı ve sürtünmesiz (frictionless) şekilde belirlemesini sağlamak.
 

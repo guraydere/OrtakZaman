@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import { Card, CardContent } from "@/components/ui/card";
+
+export const metadata: Metadata = {
+    title: 'Gizlilik ve Aydınlatma Metni',
+    description: 'OrtakZaman gizlilik politikası, KVKK ve GDPR uyumlu veri işleme şartları.',
+    alternates: { canonical: '/privacy' },
+};
 
 export default function PrivacyPage() {
     return (
