@@ -72,7 +72,7 @@ export function MeetingFinalizedView({ meeting, finalizedSlotId }: MeetingFinali
             "VERSION:2.0",
             "PRODID:-//OrtakZaman//Meeting//EN",
             "BEGIN:VEVENT",
-            `UID:${meeting.id}@ortakzaman.com`,
+            `UID:${Date.now()}@ortakzaman.com`,
             `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").split(".")[0]}Z`,
             `DTSTART:${startDateTime}`,
             `DTEND:${endDateTime}`,
@@ -149,7 +149,7 @@ export function MeetingFinalizedView({ meeting, finalizedSlotId }: MeetingFinali
                     {attendees.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                             {attendees.map(p => (
-                                <div key={p.id} className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50/50 border border-emerald-100 dark:bg-emerald-900/10 dark:border-emerald-900/30">
+                                <div key={p.name} className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50/50 border border-emerald-100 dark:bg-emerald-900/10 dark:border-emerald-900/30">
                                     <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900 border border-emerald-200 flex items-center justify-center text-emerald-700 dark:text-emerald-300 font-bold">
                                         {p.name.charAt(0).toUpperCase()}
                                     </div>
@@ -171,7 +171,7 @@ export function MeetingFinalizedView({ meeting, finalizedSlotId }: MeetingFinali
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                             {absentees.map(p => (
-                                <div key={p.id} className="flex items-center gap-3 p-3 rounded-xl bg-red-50/50 border border-red-100 dark:bg-red-900/10 dark:border-red-900/30 opacity-70">
+                                <div key={p.name} className="flex items-center gap-3 p-3 rounded-xl bg-red-50/50 border border-red-100 dark:bg-red-900/10 dark:border-red-900/30 opacity-70">
                                     <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900 border border-red-200 flex items-center justify-center text-red-700 dark:text-red-300 font-bold">
                                         {p.name.charAt(0).toUpperCase()}
                                     </div>

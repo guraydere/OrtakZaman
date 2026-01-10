@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # Next.js App
+  app:
+    container_name: ortakzaman-web
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis_db:6379
+      - SOCKET_SERVER_URL=http://socket_server:3001
+    ports:
+      - "3001:3000"
+    depends_on:
+      redis_db:
+        condition: service_healthy
+    networks:
+      - ortakzaman_network
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ortakzaman.rule=Host(`ortakzaman.localhost`)"
+      - "traefik.http.routers.ortakzaman.entrypoints=web"
+      - "traefik.http.services.ortakzaman.loadbalancer.server.port=3000"
+
+  # Socket.io Server
+  socket_server:
+    container_name: ortakzaman-socket
+    build:
+      context: ./socket-server
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis_db:6379
+    ports:
+      - "3002:3001"
+    depends_on:
+      redis_db:
+        condition: service_healthy
+    networks:
+      - ortakzaman_network
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ortakzaman-socket.rule=Host(`socket.ortakzaman.localhost`)"
+      - "traefik.http.routers.ortakzaman-socket.entrypoints=web"
+      - "traefik.http.services.ortakzaman-socket.loadbalancer.server.port=3001"
+
+  # Redis
+  redis_db:
+    container_name: ortakzaman-redis
+    image: redis/redis-stack-server:latest
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    command: [ "redis-stack-server", "--appendonly", "yes" ]
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ortakzaman_network
+
+volumes:
+  redis_data:
+
+
+networks:
+  ortakzaman_network:
+    driver: bridge
+  proxy:
+    external: true

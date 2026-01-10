@@ -214,7 +214,7 @@ export function FinalizeMeetingModal({
 
                                 return (
                                     <div
-                                        key={p.id || p.name}
+                                        key={p.name}
                                         className={cn(
                                             "flex items-center gap-3 p-3 rounded-lg border transition-all duration-200",
                                             activeSlotId === null

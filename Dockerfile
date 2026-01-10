@@ -22,6 +22,10 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Build-time arg for socket URL
+ARG NEXT_PUBLIC_SOCKET_URL=http://socket.ortakzaman.localhost
+ENV NEXT_PUBLIC_SOCKET_URL=${NEXT_PUBLIC_SOCKET_URL}
+
 RUN npm run build
 
 # ===========================================

@@ -352,3 +352,56 @@ Dokümanda "Mobil: Dokunma Modu" dedik ama 7 gün x 15 saatlik bir tablo mobilde
 Altında sadece o günün saatleri alt alta listelenir.
 
 Bu, parmakla seçimi %100 kolaylaştırır.
+
+---
+
+### E. Yerel Hibrit Geliştirme (Local Hybrid Mode)
+
+FinanceApp ile birlikte Traefik arkasında çalıştırmak için:
+
+**Domain Routing:**
+| Domain | Port |
+|--------|------|
+| `ortakzaman.localhost` | 3001 |
+| `socket.ortakzaman.localhost` | 3002 |
+
+**docker-compose.hybrid.yml Yapılandırması:**
+
+Socket server ayrı container olarak çalışır ve Traefik üzerinden erişilir.
+
+```yaml
+services:
+  app:
+    environment:
+      - REDIS_URL=redis://redis_db:6379
+      - SOCKET_SERVER_URL=http://socket_server:3001
+    ports:
+      - "3001:3000"
+
+  socket_server:
+    build:
+      context: ./socket-server
+    environment:
+      - REDIS_URL=redis://redis_db:6379
+    ports:
+      - "3002:3001"
+```
+
+**Dockerfile Değişikliği:**
+
+Socket URL'i build-time'da ayarlanır:
+
+```dockerfile
+ARG NEXT_PUBLIC_SOCKET_URL=http://socket.ortakzaman.localhost
+ENV NEXT_PUBLIC_SOCKET_URL=${NEXT_PUBLIC_SOCKET_URL}
+```
+
+**Yapılan Düzeltmeler (Ocak 2026):**
+- Socket server ayrı container olarak çalışıyor
+- `NEXT_PUBLIC_SOCKET_URL` domain-based routing kullanıyor
+- TypeScript tip hataları düzeltildi (`p.id` → `p.name`)
+
+**Başlatma:**
+```bash
+docker compose -f docker-compose.hybrid.yml up -d
+```
