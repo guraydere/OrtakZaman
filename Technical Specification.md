@@ -405,3 +405,31 @@ ENV NEXT_PUBLIC_SOCKET_URL=${NEXT_PUBLIC_SOCKET_URL}
 ```bash
 docker compose -f docker-compose.hybrid.yml up -d
 ```
+
+---
+
+### F. Production Deployment (Sunucu)
+
+Uygulama `bulusma.uzmani.app` adresinde Traefik arkasında çalışmaktadır.
+
+**Production Domain'ler:**
+| Domain | Servis |
+|--------|--------|
+| `bulusma.uzmani.app` | Next.js App |
+| `socket.bulusma.uzmani.app` | Socket.io Server |
+
+**Deploy Komutu:**
+```bash
+ssh deployer@getiri.uzmani.app  # veya IP: 37.27.83.43
+cd ~/ortakzaman
+git pull origin main
+docker compose -f docker-compose.prod.yml build
+docker compose -f docker-compose.prod.yml up -d
+```
+
+**Environment Variables:**
+- `REDIS_URL=redis://redis_db:6379`
+- `SOCKET_SERVER_URL=http://socket_server:3001`
+- `NEXT_PUBLIC_SOCKET_URL=https://socket.bulusma.uzmani.app` (build-time)
+
+**SSL:** Cloudflare Origin Certificate (Traefik tarafından yönetilir)
